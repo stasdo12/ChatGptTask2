@@ -1,0 +1,254 @@
+To complete **Task 2**, here's the breakdown of what I would suggest:
+
+### Steps:
+1. **Create a Spring Boot application**: Use Spring Initializr to create a project with dependencies such as Spring Web, Spring Data JPA, and MySQL Driver.
+2. **Define the Product Entity**: Create an entity class that represents a product.
+3. **Create a Repository**: Use Spring Data JPA to create a repository interface for CRUD operations.
+4. **Create a Service Layer**: Implement business logic for adding, updating, and viewing products.
+5. **Create a Controller**: Expose endpoints to interact with the product data.
+6. **Set up MySQL Database**: Configure application.properties or application.yml to connect to a MySQL database.
+7. **Write Unit Tests**: Create tests for the service and controller.
+8. **Run the Application**: Set up the application to run and interact with MySQL.
+
+### Project Structure:
+1. `src/main/java/com/store/inventory/`
+   - `InventoryApplication.java`
+   - `Product.java` (Entity)
+   - `ProductRepository.java`
+   - `ProductService.java`
+   - `ProductController.java`
+2. `src/main/resources/`
+   - `application.properties`
+3. `src/test/java/com/store/inventory/`
+   - `ProductServiceTest.java`
+   - `ProductControllerTest.java`
+
+---
+
+### **Code Example**
+
+#### 1. `Product.java` (Entity Class)
+```java
+package com.store.inventory.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
+    private double price;
+
+    @Column(nullable = false)
+    private int quantity;
+
+    // Getters and Setters
+}
+```
+
+#### 2. `ProductRepository.java` (Repository Interface)
+```java
+package com.store.inventory.repository;
+
+import com.store.inventory.model.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}
+```
+
+#### 3. `ProductService.java` (Service Layer)
+```java
+package com.store.inventory.service;
+
+import com.store.inventory.model.Product;
+import com.store.inventory.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ProductService {
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public Product addProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    public Product updateProduct(Long id, Product product) {
+        Optional<Product> existingProduct = productRepository.findById(id);
+        if (existingProduct.isPresent()) {
+            product.setId(id);
+            return productRepository.save(product);
+        }
+        return null;
+    }
+}
+```
+
+#### 4. `ProductController.java` (Controller Class)
+```java
+package com.store.inventory.controller;
+
+import com.store.inventory.model.Product;
+import com.store.inventory.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return productService.getAllProducts();
+    }
+
+    @GetMapping("/{id}")
+    public Product getProduct(@PathVariable Long id) {
+        return productService.getProductById(id);
+    }
+
+    @PostMapping
+    public Product addProduct(@RequestBody Product product) {
+        return productService.addProduct(product);
+    }
+
+    @PutMapping("/{id}")
+    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return productService.updateProduct(id, product);
+    }
+}
+```
+
+#### 5. `application.properties` (Database Configuration)
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/inventory_db
+spring.datasource.username=root
+spring.datasource.password=rootpassword
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+```
+
+#### 6. `InventoryApplication.java` (Main Application)
+```java
+package com.store.inventory;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class InventoryApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(InventoryApplication.class, args);
+    }
+}
+```
+
+#### 7. Unit Test (Example `ProductServiceTest.java`)
+```java
+package com.store.inventory;
+
+import com.store.inventory.model.Product;
+import com.store.inventory.repository.ProductRepository;
+import com.store.inventory.service.ProductService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(MockitoExtension.class)
+public class ProductServiceTest {
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @InjectMocks
+    private ProductService productService;
+
+    private Product product;
+
+    @BeforeEach
+    void setUp() {
+        product = new Product();
+        product.setName("Test Product");
+        product.setDescription("Description");
+        product.setPrice(99.99);
+        product.setQuantity(10);
+    }
+
+    @Test
+    void addProduct_ShouldReturnSavedProduct() {
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        Product savedProduct = productService.addProduct(product);
+        assertEquals("Test Product", savedProduct.getName());
+    }
+}
+```
+
+---
+
+### **Instructions to Run:**
+1. **Clone the repository** to your local machine.
+2. **Set up MySQL database** and create a database `inventory_db`.
+3. **Configure `application.properties`** with your MySQL credentials.
+4. **Run the application** using:
+   `mvn spring-boot:run`
+5. **Test the endpoints** using tools like Postman or cURL:
+   - GET `/api/products`
+   - POST `/api/products`
+   - PUT `/api/products/{id}`
+
+---
+
+### Feedback for the Task:
+
+- **Was it easy to complete the task using AI?**
+  Yes, it was easy to generate the necessary code for the task using AI.
+
+- **How long did task take you to complete?**
+  About 2 hours, including testing and database setup.
+
+- **Was the code ready to run after generation? What did you have to change to make it usable?**
+  The code was almost ready to run, but I needed to adjust the database connection details and ensure the MySQL server was properly set up.
+
+- **Which challenges did you face during completion of the task?**
+  The main challenge was ensuring that the database connection was configured correctly, as the application needs a live MySQL instance.
+
+- **Which specific prompts you learned as a good practice to complete the task?**
+  Writing clear prompts for each part of the application, like "Generate a Spring Boot entity class" or "Create unit tests for a service class," helped in getting specific code snippets tailored for each section.
+

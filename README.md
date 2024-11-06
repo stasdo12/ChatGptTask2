@@ -38,11 +38,10 @@ The product information is persisted in a MySQL database using Hibernate.
 
 ### Steps to Run
 1. Clone the repository:
-   ```bash
 
    ```
 2. Navigate to the project directory:
-   ```bash
+  
    cd inventory-system
    ```
 3. Set up your MySQL database:
@@ -55,7 +54,7 @@ The product information is persisted in a MySQL database using Hibernate.
       spring.jpa.hibernate.ddl-auto=update
       ```
 4. Build and run the application:
-   ```bash
+
    mvn spring-boot:run
    ```
    The application will run on `http://localhost:8080`.
@@ -64,7 +63,7 @@ The product information is persisted in a MySQL database using Hibernate.
 
 ### Running Tests
 To run the unit tests, execute the following Maven command:
-```bash
+
 mvn test
 ```
 Test coverage is above 80%, ensuring the application functionality is thoroughly tested.

@@ -39,7 +39,7 @@ The product information is persisted in a MySQL database using Hibernate.
 ### Steps to Run
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/inventory-system.git
+
    ```
 2. Navigate to the project directory:
    ```bash
@@ -74,7 +74,7 @@ Test coverage is above 80%, ensuring the application functionality is thoroughly
 - **Code Complexity**: Code is structured and modular, with low cyclomatic complexity.
 - **Checkstyle**: Code adheres to best practices and style guidelines.
 
-## ChatGPT Feedback (40 minutes)
+## ChatGPT Feedback 
 - **Was it easy to complete the task using AI?**  
   Yes, ChatGPT provided clear instructions and guidance to complete the task step-by-step. It helped generate the necessary code and configurations with ease.
 
